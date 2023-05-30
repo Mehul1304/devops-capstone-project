@@ -1,13 +1,13 @@
 version: 2.1
 
 executors:
-  ubuntu-18.04:
+  ubuntu1804:
     docker:
       - image: ubuntu:18.04
 
 jobs:
   build:
-    executor: ubuntu-18.04
+    executor: ubuntu1804
 
     steps:
       - checkout
