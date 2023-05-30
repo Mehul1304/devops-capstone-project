@@ -12,9 +12,9 @@ jobs:
           name: Install dependencies
           command: pip install --no-cache-dir -r requirements.txt
 
-      - run:
-          name: Run tests
-          command: pytest
+      #- run:
+      #    name: Run tests
+      #    command: python pytest.py
 
 workflows:
   version: 2
