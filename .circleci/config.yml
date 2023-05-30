@@ -1,77 +1,23 @@
 version: 2.1
 
-executors:
-  ubuntu1804:
-    docker:
-      - image: ubuntu:18.04
-
 jobs:
   build:
-    executor: ubuntu1804
+    docker:
+      - image: python:3.9-slim
 
     steps:
       - checkout
 
       - run:
-          name: Install necessary tools
-          command: |
-            apt-get update && \
-            apt-get install -y sudo \
-                vim \
-                make \
-                git \
-                zip \
-                tree \
-                curl \
-                wget \
-                jq \
-                software-properties-common \
-                python3-pip \
-                python3-dev
+          name: Install dependencies
+          command: pip install --no-cache-dir -r requirements.txt
 
       - run:
-          name: Install K3D for local Kubernetes development
-          command: |
-            curl -s "https://raw.githubusercontent.com/rancher/k3d/main/install.sh" | sudo bash
-
-      - run:
-          name: Install Tekton CLI
-          command: |
-            curl -LO https://github.com/tektoncd/cli/releases/download/v0.18.0/tkn_0.18.0_Linux_x86_64.tar.gz && \
-            tar xvzf tkn_0.18.0_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn && \
-            ln -s /usr/local/bin/tkn /usr/bin/tkn
-
-      - run:
-          name: Install OpenShift CLI
-          command: |
-            curl -LO https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz && \
-            tar xvzf openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz && \
-            install openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc /usr/local/bin/oc && \
-            ln -s /usr/local/bin/oc /usr/bin/oc
-
-      - run:
-          name: Create a user for development
-          command: |
-            USERNAME=theia
-            USER_UID=1000
-            USER_GID=$USER_UID
-            
-            groupadd --gid $USER_GID $USERNAME && \
-            useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash && \
-            usermod -aG sudo $USERNAME && \
-            echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
-            chmod 0440 /etc/sudoers.d/$USERNAME
-
-      - run:
-          name: Set up Python development environment
-          command: |
-            su - theia -c "python3 -m pip install --upgrade pip wheel"
-
-  # Add more jobs if needed
+          name: Run tests
+          command: pytest
 
 workflows:
   version: 2
   build-workflow:
     jobs:
       - build
-      # Add more jobs here if needed
